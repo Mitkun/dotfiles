@@ -52,7 +52,7 @@ All configs are symlinked into `$HOME` via `stow`.
 ### 1️⃣ Clone the repository
 
 ```
-git clone ssh git@github.com:Mitkun/dotfiles.git ~/dotfiles
+git clone git@github.com:Mitkun/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ```
 
