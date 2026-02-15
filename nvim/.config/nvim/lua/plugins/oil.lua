@@ -21,9 +21,6 @@ return {
 				["<CR>"] = actions.select,
 				["-"] = actions.parent,
 				["_"] = actions.open_cwd,
-				["a"] = actions.create,
-				["d"] = actions.delete,
-				["r"] = actions.rename,
 				["q"] = actions.close,
 			},
 

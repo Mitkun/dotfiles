@@ -20,6 +20,7 @@ return {
 		cmp.setup({
 			completion = {
 				completeopt = "menu,menuone,noselect",
+				autocomplete = false,
 			},
 			window = {
 				completion = {
@@ -91,4 +92,3 @@ return {
 		})
 	end,
 }
-

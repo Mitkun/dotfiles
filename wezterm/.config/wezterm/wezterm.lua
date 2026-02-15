@@ -31,8 +31,8 @@ config.text_background_opacity = 1.0
 local bg_dir = wezterm.config_dir .. "/backgrounds"
 local default_bg = bg_dir .. "/default.jpg"
 
-local default_overlay_opacity = 0.85
-local nvim_overlay_opacity = 0.95
+local default_overlay_opacity = 0.75
+local nvim_overlay_opacity = 0.85
 
 local function list_backgrounds(folder)
 	local handle = io.popen('ls "' .. folder .. '"')
