@@ -33,7 +33,7 @@ return {
 				},
 
 				indent = {
-					enable = true,
+					enable = false,
 				},
 
 				autotag = {

@@ -1,18 +1,78 @@
 local wezterm = require("wezterm")
-local config = {}
+local config = wezterm.config_builder()
+local os = require("os")
+local io = require("io")
 
--- ======================
--- BASIC
--- ======================
+math.randomseed(os.time())
 
-config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
-config.font_size = 15
-config.color_scheme = "Tokyo Night"
+config.front_end = "WebGpu"
 
-config.window_decorations = "TITLE | RESIZE"
-config.native_macos_fullscreen_mode = true
-config.window_close_confirmation = "NeverPrompt"
-config.enable_tab_bar = false
+local is_apple_silicon = wezterm.target_triple:find("aarch64") ~= nil
+if is_apple_silicon then
+	config.webgpu_power_preference = "HighPerformance"
+else
+	config.webgpu_power_preference = "LowPower"
+end
+
+-- =========================================================
+-- Paths
+-- =========================================================
+
+local home = os.getenv("HOME")
+local bg_folder = home .. "/.config/wezterm/backgrounds"
+local default_bg = bg_folder .. "/default.jpg"
+
+local current_bg = default_bg
+local brightness = 0.05
+
+-- =========================================================
+-- Pick random background
+-- =========================================================
+
+local function pick_random_background(folder)
+	local handle = io.popen('ls "' .. folder .. '"')
+	if not handle then
+		return nil
+	end
+
+	local result = handle:read("*a")
+	handle:close()
+
+	local images = {}
+	for file in string.gmatch(result, "[^\n]+") do
+		if file ~= "default.jpg" and (file:match("%.jpg$") or file:match("%.png$") or file:match("%.jpeg$")) then
+			table.insert(images, file)
+		end
+	end
+
+	if #images == 0 then
+		return nil
+	end
+
+	return folder .. "/" .. images[math.random(#images)]
+end
+
+-- =========================================================
+-- Appearance Configuration
+-- =========================================================
+
+config.window_background_image = default_bg
+
+config.window_background_image_hsb = {
+	brightness = brightness,
+	hue = 1.0,
+	saturation = 0.9,
+}
+
+if is_apple_silicon then
+	-- Cấu hình cho MacBook Air M4
+	config.macos_window_background_blur = 70
+	config.window_background_opacity = 0.90
+else
+	-- Cấu hình cho MacBook Air 11" 2015 (Giảm tải cho GPU Intel cũ)
+	config.macos_window_background_blur = 30 -- Giảm blur để máy không bị lag
+	config.window_background_opacity = 0.95
+end
 
 config.window_padding = {
 	left = 0,
@@ -21,135 +81,121 @@ config.window_padding = {
 	bottom = 0,
 }
 
-config.window_background_opacity = 1.0
-config.text_background_opacity = 1.0
+config.color_scheme = "Tokyo Night"
 
--- ======================
--- BACKGROUND SYSTEM
--- ======================
+-- Font: Tự động chỉnh cỡ chữ cho phù hợp màn hình 11 inch (Intel) vs M4
+config.font = wezterm.font("JetBrainsMono Nerd Font")
+config.font_size = is_apple_silicon and 16 or 13
 
-local bg_dir = wezterm.config_dir .. "/backgrounds"
-local default_bg = bg_dir .. "/default.jpg"
+config.native_macos_fullscreen_mode = true
+config.window_decorations = "RESIZE"
+config.enable_tab_bar = false
 
-local default_overlay_opacity = 0.75
-local nvim_overlay_opacity = 0.85
-
-local function list_backgrounds(folder)
-	local handle = io.popen('ls "' .. folder .. '"')
-	if not handle then
-		return {}
-	end
-	local result = handle:read("*a")
-	handle:close()
-
-	local files = {}
-	for file in string.gmatch(result, "[^\n]+") do
-		if file ~= "default.jpg" then
-			table.insert(files, folder .. "/" .. file)
-		end
-	end
-	return files
-end
-
-local backgrounds = list_backgrounds(bg_dir)
-
--- 👇 LƯU ẢNH HIỆN TẠI Ở ĐÂY
-local current_bg = default_bg
-
-local function make_background(path, overlay_opacity)
-	return {
-		{
-			source = { File = path },
-			horizontal_align = "Center",
-			vertical_align = "Middle",
-		},
-		{
-			source = { Color = "#000000" },
-			width = "100%",
-			height = "100%",
-			opacity = overlay_opacity,
-		},
-	}
-end
-
-config.background = make_background(current_bg, default_overlay_opacity)
-
--- ======================
--- RANDOM
--- ======================
-
-local function apply_background(window, overlay)
-	window:set_config_overrides({
-		background = make_background(current_bg, overlay),
-	})
-end
-
-local function random_background(window, overlay)
-	if #backgrounds == 0 then
-		return
-	end
-	current_bg = backgrounds[math.random(#backgrounds)]
-	apply_background(window, overlay or default_overlay_opacity)
-end
-
--- ======================
--- AUTO CHANGE 10 MIN
--- ======================
-
-wezterm.on("update-status", function(window, pane)
-	if not window._bg_timer then
-		window._bg_timer = true
-
-		local function schedule()
-			wezterm.time.call_after(600, function()
-				random_background(window, default_overlay_opacity)
-				schedule()
-			end)
-		end
-
-		schedule()
-	end
-end)
-
--- ======================
--- DARKEN WHEN NVIM
--- ======================
-
-wezterm.on("update-right-status", function(window, pane)
-	local process = pane:get_foreground_process_name()
-
-	if process and process:find("nvim") then
-		apply_background(window, nvim_overlay_opacity)
-	else
-		apply_background(window, default_overlay_opacity)
-	end
-end)
-
--- ======================
--- KEYBINDINGS
--- ======================
+-- =========================================================
+-- Keybindings
+-- =========================================================
 
 config.keys = {
-	{
-		key = "Enter",
-		mods = "ALT",
-		action = wezterm.action.ToggleFullScreen,
-	},
+
+	-- BACKGROUND CONTROLS
 	{
 		key = "b",
 		mods = "CTRL|SHIFT",
 		action = wezterm.action_callback(function(window)
-			random_background(window, default_overlay_opacity)
+			local new_bg = pick_random_background(bg_folder)
+			if new_bg then
+				current_bg = new_bg
+				window:set_config_overrides({
+					window_background_image = current_bg,
+				})
+			end
 		end),
 	},
+
 	{
 		key = "d",
 		mods = "CTRL|SHIFT",
 		action = wezterm.action_callback(function(window)
 			current_bg = default_bg
-			apply_background(window, default_overlay_opacity)
+			window:set_config_overrides({
+				window_background_image = current_bg,
+			})
 		end),
 	},
+
+	{
+		key = ">",
+		mods = "CTRL|SHIFT",
+		action = wezterm.action_callback(function(window)
+			brightness = math.min(brightness + 0.01, 1.0)
+			window:set_config_overrides({
+				window_background_image_hsb = {
+					brightness = brightness,
+					hue = 1.0,
+					saturation = 0.9,
+				},
+			})
+		end),
+	},
+
+	{
+		key = "<",
+		mods = "CTRL|SHIFT",
+		action = wezterm.action_callback(function(window)
+			brightness = math.max(brightness - 0.01, 0.01)
+			window:set_config_overrides({
+				window_background_image_hsb = {
+					brightness = brightness,
+					hue = 1.0,
+					saturation = 0.9,
+				},
+			})
+		end),
+	},
+
+	-- SPLIT PANES
+	{
+		key = "\\",
+		mods = "CMD",
+		action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
+	},
+	{
+		key = "-",
+		mods = "CMD",
+		action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
+	},
+
+	-- MOVE BETWEEN PANES
+	{ key = "h", mods = "CMD", action = wezterm.action.ActivatePaneDirection("Left") },
+	{ key = "l", mods = "CMD", action = wezterm.action.ActivatePaneDirection("Right") },
+	{ key = "k", mods = "CMD", action = wezterm.action.ActivatePaneDirection("Up") },
+	{ key = "j", mods = "CMD", action = wezterm.action.ActivatePaneDirection("Down") },
+
+	-- RESIZE PANES
+	{ key = "H", mods = "CMD|SHIFT", action = wezterm.action.AdjustPaneSize({ "Left", 5 }) },
+	{ key = "L", mods = "CMD|SHIFT", action = wezterm.action.AdjustPaneSize({ "Right", 5 }) },
+	{ key = "K", mods = "CMD|SHIFT", action = wezterm.action.AdjustPaneSize({ "Up", 3 }) },
+	{ key = "J", mods = "CMD|SHIFT", action = wezterm.action.AdjustPaneSize({ "Down", 3 }) },
+
+	-- CLOSE CONTROLS
+	{
+		key = "w",
+		mods = "CMD",
+		action = wezterm.action.CloseCurrentPane({ confirm = true }),
+	},
+	{
+		key = "W",
+		mods = "CMD|SHIFT",
+		action = wezterm.action.CloseCurrentTab({ confirm = true }),
+	},
 }
+
+-- =========================================================
+-- Cursor & Misc
+-- =========================================================
+
+config.default_cursor_style = "BlinkingUnderline"
+config.cursor_thickness = 2
+config.scrollback_lines = 3500
 
 return config

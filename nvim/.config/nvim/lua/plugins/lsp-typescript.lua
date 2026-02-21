@@ -1,20 +1,21 @@
 return {
 	"pmizio/typescript-tools.nvim",
-	dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+	dependencies = {
+		"nvim-lua/plenary.nvim",
+		"neovim/nvim-lspconfig",
+		"hrsh7th/cmp-nvim-lsp",
+	},
 	config = function()
-		local api = require("typescript-tools.api")
+		local lsp_shared = require("lsp-config")
 
 		require("typescript-tools").setup({
-			handlers = {
-				["textDocument/publishDiagnostics"] = api.filter_diagnostics({ 6133 }),
-			},
+			capabilities = lsp_shared.capabilities(),
+			on_attach = lsp_shared.on_attach,
 			settings = {
 				tsserver_file_preferences = {
 					importModuleSpecifierPreference = "non-relative",
-				},
-				-- Tự động thêm semicolon, v.v. nếu bạn muốn
-				tsserver_format_options = {
-					insertSpaceAfterCommaDelimiter = true,
+					includeCompletionsForModuleExports = true,
+					includeCompletionsForImportStatements = true,
 				},
 			},
 		})

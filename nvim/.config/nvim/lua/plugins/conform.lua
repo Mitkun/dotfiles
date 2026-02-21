@@ -16,17 +16,17 @@ return {
 				markdown = { "prettierd" },
 				graphql = { "prettierd" },
 			},
+
 			format_on_save = function(bufnr)
-				-- Chạy lệnh xử lý import của typescript-tools trước khi format
 				local ft = vim.bo[bufnr].filetype
+
 				if ft == "typescript" or ft == "typescriptreact" then
-					vim.cmd("TSToolsAddMissingImports sync")
 					vim.cmd("TSToolsOrganizeImports sync")
 				end
 
 				return {
 					timeout_ms = 500,
-					lsp_fallback = true,
+					lsp_fallback = false,
 				}
 			end,
 		})
