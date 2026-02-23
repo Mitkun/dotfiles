@@ -1,6 +1,9 @@
 return {
 	"stevearc/oil.nvim",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
+	dependencies = {
+		"nvim-tree/nvim-web-devicons",
+		"refractalize/oil-git-status.nvim",
+	},
 	cmd = "Oil",
 	keys = {
 		{ "-", "<cmd>Oil --float<CR>", desc = "Open parent directory (Oil)" },
@@ -30,6 +33,13 @@ return {
 				max_height = 25,
 				border = "rounded",
 			},
+			win_options = {
+				signcolumn = "yes:2",
+			},
+		})
+
+		require("oil-git-status").setup({
+			show_ignored = false,
 		})
 	end,
 }

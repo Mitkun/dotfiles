@@ -1,15 +1,31 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		event = { "BufReadPre", "BufNewFile" },
 		build = ":TSUpdate",
-		dependencies = {
-			"windwp/nvim-ts-autotag",
-			"axelvc/template-string.nvim",
-		},
+		lazy = false, -- README: không hỗ trợ lazy-load
+
 		config = function()
-			require("nvim-treesitter").setup({
-				ensure_installed = {
+			-- Cài parser (tương đương ensure_installed cũ)
+			require("nvim-treesitter").install({
+				"tsx",
+				"lua",
+				"vim",
+				"vimdoc",
+				"typescript",
+				"javascript",
+				"html",
+				"css",
+				"json",
+				"graphql",
+				"regex",
+				"prisma",
+				"markdown",
+				"markdown_inline",
+			})
+
+			-- Bật highlight cho các filetype trên
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = {
 					"tsx",
 					"lua",
 					"vim",
@@ -19,39 +35,13 @@ return {
 					"css",
 					"json",
 					"graphql",
-					"regex",
 					"prisma",
 					"markdown",
-					"markdown_inline",
 				},
-
-				auto_install = true,
-
-				highlight = {
-					enable = true,
-					additional_vim_regex_highlighting = false,
-				},
-
-				indent = {
-					enable = false,
-				},
-
-				autotag = {
-					enable = true,
-				},
-
-				incremental_selection = {
-					enable = true,
-					keymaps = {
-						init_selection = "<leader>v",
-						node_incremental = "<leader>v",
-						node_decremental = "<leader>V",
-						scope_incremental = false,
-					},
-				},
+				callback = function()
+					vim.treesitter.start()
+				end,
 			})
-
-			require("template-string").setup({})
 		end,
 	},
 }

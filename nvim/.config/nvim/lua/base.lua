@@ -34,10 +34,10 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- transparent background for wezterm wallpaper
-vim.cmd([[
-  highlight Normal guibg=none ctermbg=none
-  highlight NormalNC guibg=none ctermbg=none
-  highlight SignColumn guibg=none
-  highlight EndOfBuffer guibg=none
-]])
+-- -- transparent background for wezterm wallpaper
+-- vim.cmd([[
+--   highlight Normal guibg=none ctermbg=none
+--   highlight NormalNC guibg=none ctermbg=none
+--   highlight SignColumn guibg=none
+--   highlight EndOfBuffer guibg=none
+-- ]])
