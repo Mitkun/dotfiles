@@ -8,8 +8,7 @@ return {
 		vim.keymap.set("n", "]t", todo.jump_next, { desc = "Next todo comment" })
 		vim.keymap.set("n", "[t", todo.jump_prev, { desc = "Previous todo comment" })
 
-		vim.keymap.set("n", "<leader>t", "<cmd>TodoTelescope<cr>", { desc = "Todo list (Telescope)" })
-
+		vim.keymap.set("n", "<leader>t", "<cmd>TodoQuickFix<cr>", { desc = "Todo list" })
 		todo.setup()
 	end,
 }

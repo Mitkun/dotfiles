@@ -15,5 +15,7 @@ keymap.set("n", "k", [[v:count?'k':'gk']], { noremap = true, expr = true })
 
 keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
 
+vim.keymap.set("t", "jk", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR><Esc>", { silent = true })
+
 vim.keymap.set("n", "<leader><leader>", "<C-^>", { desc = "Last buffer" })

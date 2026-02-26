@@ -35,13 +35,13 @@ return {
 		vim.api.nvim_set_hl(0, "Pmenu", { bg = "#232a2e", blend = 10 })
 		vim.api.nvim_set_hl(0, "PmenuSel", { bg = "#3c484f", bold = true })
 		vim.api.nvim_set_hl(0, "PmenuBorder", { fg = "#e6c384", bg = "#232a2e" })
-
-		-- =============================
-		-- Telescope
-		-- =============================
-
-		vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "#232a2e", blend = 10 })
-		vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#e6c384", bg = "#232a2e" })
-		vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = "#3c484f", bold = true })
+		--
+		-- -- =============================
+		-- -- Telescope
+		-- -- =============================
+		--
+		-- vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "#232a2e", blend = 10 })
+		-- vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#e6c384", bg = "#232a2e" })
+		-- vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = "#3c484f", bold = true })
 	end,
 }

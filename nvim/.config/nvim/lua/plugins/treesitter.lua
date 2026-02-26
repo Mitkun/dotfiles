@@ -2,10 +2,10 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		lazy = false, -- README: không hỗ trợ lazy-load
+		lazy = false,
 
 		config = function()
-			-- Cài parser (tương đương ensure_installed cũ)
+			-- Cài parser
 			require("nvim-treesitter").install({
 				"tsx",
 				"lua",
