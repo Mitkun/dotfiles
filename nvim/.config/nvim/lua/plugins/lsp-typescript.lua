@@ -11,7 +11,7 @@ return {
 		require("typescript-tools").setup({
 			capabilities = lsp_shared.capabilities(),
 			on_attach = lsp_shared.on_attach,
-			single_file_support = false,
+			single_file_support = true,
 			settings = {
 				tsserver_file_preferences = {
 					importModuleSpecifierPreference = "non-relative",

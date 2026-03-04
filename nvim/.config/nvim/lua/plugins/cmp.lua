@@ -1,6 +1,6 @@
 return {
 	"hrsh7th/nvim-cmp",
-	event = "InsertEnter",
+	event = { "InsertEnter", "CmdlineEnter" },
 	dependencies = {
 		"hrsh7th/cmp-buffer", -- text trong buffer
 		"hrsh7th/cmp-path", -- path completion
@@ -47,7 +47,16 @@ return {
 			},
 
 			mapping = cmp.mapping.preset.insert({
-				["<C-Space>"] = cmp.mapping.complete(),
+				["<C-Space>"] = cmp.mapping(function(fallback)
+					-- Nếu menu đang hiện, chọn phần tử hiện tại
+					if cmp.visible() then
+						cmp.confirm({ select = true })
+					-- Nếu không hiện, ép buộc mở menu gợi ý (trigger completion)
+					else
+						cmp.complete()
+					end
+				end, { "i" }),
+				["<C-e>"] = cmp.mapping.abort(),
 
 				-- KHÔNG auto chọn item khi Enter
 				["<CR>"] = cmp.mapping.confirm({ select = false }),
