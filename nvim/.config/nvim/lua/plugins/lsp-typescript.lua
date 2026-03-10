@@ -18,6 +18,7 @@ return {
 					includeCompletionsForModuleExports = true,
 					includeCompletionsForImportStatements = true,
 				},
+				expose_as_code_action = "all",
 			},
 		})
 	end,
